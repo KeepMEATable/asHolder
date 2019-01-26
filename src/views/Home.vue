@@ -1,18 +1,24 @@
 <template>
   <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/>
+    <qrcode-stream @decode="onDecode">
+      <b>Please scan A QrCode to add it to your queue.</b>
+    </qrcode-stream>
+    <h1>HERE</h1>
   </div>
 </template>
 
-<script lang="ts">
+<script>
 import { Component, Vue } from 'vue-property-decorator';
-import HelloWorld from '@/components/HelloWorld.vue'; // @ is an alias to /src
+import { QrcodeStream } from 'vue-qrcode-reader';
 
 @Component({
   components: {
-    HelloWorld,
+    QrcodeStream,
   },
 })
-export default class Home extends Vue {}
+export default class Home extends Vue {
+  onDecode(decodedString) {
+    this.$store.dispatch('flash', decodedString);
+  }
+}
 </script>
