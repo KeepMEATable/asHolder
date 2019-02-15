@@ -23,7 +23,7 @@ export default new Vuex.Store({
   actions: {
     init({commit}) {
       Api
-        .get(`queues?waiting=true`)
+        .get(`queues`)
         .then((response: any) => {
           console.log(response.data['hydra:member']);
           commit('setQueues', response.data['hydra:member']);
