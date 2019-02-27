@@ -1,7 +1,7 @@
 <template>
   <v-layout row>
-    <v-flex xs12 sm6 offset-sm3 v-if="$store.state.queues.length">
-      <v-list-tile v-for="item in $store.state.queues" :key="item.customerId">
+    <v-flex xs12 sm6 offset-sm3 v-if="$store.state.waitingLines.length">
+      <v-list-tile v-for="item in $store.state.waitingLines" :key="item.customerId">
         <v-list-tile-avatar>
            <v-icon color="teal" @click="$store.dispatch('ready', item)">add_alert</v-icon>
         </v-list-tile-avatar>

@@ -1,75 +1,75 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import Router from './router';
-import Queue from '@/models/Queue';
+import WaitingLine from '@/models/WaitingLine';
 import Api from '@/lib/Api';
 import createPersistedState from 'vuex-persistedstate';
 
 Vue.use(Vuex);
 
 const baseUrl = `${process.env.VUE_APP_MERCURE_HUB_ENTRYPOINT}`;
-const baseTopic = `${process.env.VUE_APP_API_ENTRYPOINT}/queues/`;
+const baseTopic = `${process.env.VUE_APP_API_ENTRYPOINT}/waiting_lines/`;
 const url = new URL(baseUrl);
 
 export default new Vuex.Store({
   state: {
-    queues: []
+    waitingLines: []
   },
   mutations: {
-    addQueue(state, queue: Queue) {
-      state.queues.push(queue);
+    addWaitingLine(state, waitingLine: WaitingLine) {
+      state.waitingLines.push(waitingLine);
     },
-    updateQueue(state, queue: Queue) {
-      if (!queue.waiting) {
-        state.queues = state.queues.filter(exist => exist.customerId != queue.customerId);
+    updateWaitingLine(state, waitingLine: WaitingLine) {
+      if (!waitingLine.waiting) {
+        state.waitingLines = state.waitingLines.filter(exist => exist.customerId != waitingLine.customerId);
         return;
       }
 
-      const alreadyExists = state.queues.find(exist => exist.customerId == queue.customerId);
+      const alreadyExists = state.waitingLines.find(exist => exist.customerId == waitingLine.customerId);
 
       if (alreadyExists == undefined) {
-        state.queues.push(queue);
+        state.waitingLines.push(waitingLine);
       }
     },
-    resetQueue(state) {
-      state.queues = [];
+    resetWaitingLine(state) {
+      state.waitingLines = [];
     }
   },
   actions: {
     init({commit}) {
       Api
-        .get(`queues`)
+        .get(`waiting_lines`)
         .then(({data}: any) => {
-          commit('resetQueue');
+          commit('resetWaitingLine');
 
           if (0 === data['hydra:member'].length) {
             return;
           }
 
-          data['hydra:member'].forEach(function(queue: Queue) {
-            commit('addQueue', queue);
-            url.searchParams.append('topic', `${baseTopic}${queue.customerId}`);
+          data['hydra:member'].forEach(function(waitingLine: WaitingLine) {
+            commit('addWaitingLine', waitingLine);
+            url.searchParams.append('topic', `${baseTopic}${waitingLine.customerId}`);
           });
 
           const es = new EventSource(url);
           es.onmessage = ({data}: any) => {
-            const queue = JSON.parse(data);
-            commit('updateQueue', queue);
+            const waitingLine = JSON.parse(data);
+            commit('updateWaitingLine', waitingLine);
           };
         });
     },
     flash({ commit }, uid) {
       Api
-        .patch(`queues/${uid}/state`, {
+        .patch(`waiting_lines/${uid}/state`, {
           state: 'wait',
         })
         .then(({data}: any) => {
-          commit('addQueue', data);
+          commit('addWaitingLine', data);
 
           const es = new EventSource(`${baseUrl}?topic=${baseTopic}${data.customerId}`);
           es.onmessage = ({data}) => {
-            const queue = JSON.parse(data);
-            commit('updateQueue', queue);
+            const waitingLine = JSON.parse(data);
+            commit('updateWaitingLine', waitingLine);
           };
 
           Router.push({ name: 'numberselect' });
@@ -80,20 +80,20 @@ export default new Vuex.Store({
     },
     ready({ commit }, item) {
       Api
-        .patch(`queues/${item.customerId}/state`, {
+        .patch(`waiting_lines/${item.customerId}/state`, {
           state: 'ready',
         })
         .then((response: any) => {
-          commit('updateQueue', response);
+          commit('updateWaitingLine', response);
         });
     },
     reset({ commit }, item) {
       Api
-        .patch(`queues/${item.customerId}/state`, {
+        .patch(`waiting_lines/${item.customerId}/state`, {
           state: 'reset',
         })
         .then((response: any) => {
-          commit('updateQueue', response);
+          commit('updateWaitingLine', response);
         });
     },
   },
