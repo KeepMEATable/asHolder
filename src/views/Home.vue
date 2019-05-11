@@ -18,7 +18,7 @@ import { QrcodeStream } from 'vue-qrcode-reader';
 })
 export default class Home extends Vue {
   onDecode(decodedString) {
-    this.$store.dispatch('flash', decodedString);
+    this.$store.dispatch('waitingLine/flash', decodedString);
   }
 }
 </script>

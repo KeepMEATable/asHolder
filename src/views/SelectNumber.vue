@@ -1,9 +1,9 @@
 <template>
   <v-layout row>
-    <v-flex xs12 sm6 offset-sm3 v-if="$store.state.waitingLines.length">
-      <v-list-tile v-for="item in $store.state.waitingLines" :key="item.customerId">
+    <v-flex xs12 sm6 offset-sm3 v-if="$store.state.waitingLine.waitingLines.length">
+      <v-list-tile v-for="item in $store.state.waitingLine.waitingLines" :key="item.customerId">
         <v-list-tile-avatar>
-           <v-icon color="teal" @click="$store.dispatch('ready', item)">add_alert</v-icon>
+           <v-icon color="teal" @click="$store.dispatch('waitingLine/ready', item)">add_alert</v-icon>
         </v-list-tile-avatar>
 
         <v-list-tile-content>
@@ -11,7 +11,7 @@
         </v-list-tile-content>
 
         <v-list-tile-action>
-            <v-icon color="red" @click="$store.dispatch('reset', item)">remove_circle</v-icon>
+            <v-icon color="red" @click="$store.dispatch('waitingLine/reset', item)">remove_circle</v-icon>
         </v-list-tile-action>
       </v-list-tile>
     </v-flex>
@@ -27,7 +27,7 @@ import { Component, Vue } from 'vue-property-decorator';
 @Component
 export default class SelectNumber extends Vue {
   public created() {
-    this.$store.dispatch('init');
+    this.$store.dispatch('waitingLine/init');
   }
 }
 </script>

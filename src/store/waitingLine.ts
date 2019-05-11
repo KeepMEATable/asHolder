@@ -1,17 +1,13 @@
-import Vue from 'vue';
-import Vuex from 'vuex';
-import Router from './router';
+import Router from '@/router';
 import WaitingLine from '@/models/WaitingLine';
-import Api from '@/lib/Api';
-import createPersistedState from 'vuex-persistedstate';
-
-Vue.use(Vuex);
+import { Api } from '@/lib/Api';
 
 const baseUrl = `${process.env.VUE_APP_MERCURE_HUB_ENTRYPOINT}`;
 const baseTopic = `${process.env.VUE_APP_API_ENTRYPOINT}/waiting_lines/`;
 const url = new URL(baseUrl);
 
-export default new Vuex.Store({
+export const waitingLine = {
+  namespaced: true,
   state: {
     waitingLines: []
   },
@@ -96,10 +92,5 @@ export default new Vuex.Store({
           commit('updateWaitingLine', response);
         });
     },
-  },
-  plugins: [
-    createPersistedState({
-      key: 'takeMEATable-holder',
-    }),
-  ],
-});
+  }
+};
