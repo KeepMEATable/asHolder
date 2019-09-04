@@ -13,7 +13,11 @@ export const waitingLine = {
   },
   mutations: {
     addWaitingLine(state, waitingLine: WaitingLine) {
-      state.waitingLines.push(waitingLine);
+      const alreadyExists = state.waitingLines.find(exist => exist.customerId == waitingLine.customerId);
+
+      if (alreadyExists == undefined) {
+        state.waitingLines.push(waitingLine);
+      }
     },
     updateWaitingLine(state, waitingLine: WaitingLine) {
       if (!waitingLine.waiting) {
@@ -38,20 +42,21 @@ export const waitingLine = {
         .then(({data}: any) => {
           commit('resetWaitingLine');
 
+          url.searchParams.append('topic', `${baseTopic}{id}`);
+
+          const es = new EventSource(url.toString());
+          es.onmessage = ({data}: any) => {
+            const waitingLine = JSON.parse(data);
+            commit('updateWaitingLine', waitingLine);
+          };
+
           if (0 === data['hydra:member'].length) {
             return;
           }
 
           data['hydra:member'].forEach(function(waitingLine: WaitingLine) {
             commit('addWaitingLine', waitingLine);
-            url.searchParams.append('topic', `${baseTopic}${waitingLine.customerId}`);
           });
-
-          const es = new EventSource(url);
-          es.onmessage = ({data}: any) => {
-            const waitingLine = JSON.parse(data);
-            commit('updateWaitingLine', waitingLine);
-          };
         });
     },
     flash({ commit }, uid) {

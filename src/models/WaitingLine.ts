@@ -3,4 +3,5 @@ export default interface WaitingLine {
   ready: boolean;
   started: boolean;
   waiting: boolean;
+  expoToken: string;
 }
